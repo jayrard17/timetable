@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Timetable</title>
+    <link href="./output.css" rel="stylesheet">
+</head>
+
+<body class="flex flex-col min-h-screen p-4">
+    <h1 class="weeklyt text-center text-3xl pt-[10vh]">Weekly Timetable</h1>
+
+    <!-- Floating Task Form (hidden initially) -->
+    <div id="task-form-modal" class="fixed inset-0 bg-gray-800 bg-opacity-50 hidden">
+        <div id="task-form"
+            class="w-full max-w-lg bg-white p-6 rounded-lg shadow-lg absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <h2 class="text-2xl mb-4">Add New Task</h2>
+            <form id="new-task-form">
+                <div class="mb-4">
+                    <label for="task-time" class="block text-sm font-medium text-gray-700">Time</label>
+                    <input type="time" id="task-time" name="task-time"
+                        class="mt-1 block w-full border-gray-500 rounded-md shadow-sm" required>
+                </div>
+                <div class="mb-4">
+                    <label for="task-title" class="block text-sm font-medium text-gray-700">Task</label>
+                    <input type="text" id="task-title" name="task-title" placeholder="What task to do?"
+                        class="mt-1 block w-full border-gray-500 rounded-md shadow-sm" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Date</label>
+                    <input type="text" id="task-date" name="task-date"
+                        class="mt-1 block w-full border-gray-500 rounded-md shadow-sm" readonly>
+                </div>
+                <div class="mb-4">
+                    <label for="task-desc" class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea id="task-desc" name="task-desc" placeholder="Task description"
+                        class="mt-1 block w-full border-gray-500 rounded-md shadow-sm" required></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" id="cancel-btn"
+                        class="bg-gray-500 text-white px-4 py-2 mr-2 rounded hover:bg-gray-600">Cancel</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Add
+                        Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h2 class="text-center text-2xl mb-5">Tasks for the week</h2>
+
+    <div class="flex justify-center flex-grow">
+        <div class="ttable text-center">
+            <table id="task-table" class="table-auto border-collapse border border-gray-500">
+                <thead>
+                    <tr>
+                        <th class="border border-gray-500 px-4 py-2">Monday</th>
+                        <th class="border border-gray-500 px-4 py-2">Tuesday</th>
+                        <th class="border border-gray-500 px-4 py-2">Wednesday</th>
+                        <th class="border border-gray-500 px-4 py-2">Thursday</th>
+                        <th class="border border-gray-500 px-4 py-2">Friday</th>
+                        <th class="border border-gray-500 px-4 py-2">Saturday</th>
+                        <th class="border border-gray-500 px-4 py-2">Sunday</th>
+                    </tr>
+                </thead>
+                <tbody id="task-table-body">
+
+                    <tr>
+                        <td class="border border-gray-500 px-4 py-2">
+                            <button class="text-lg text-blue-500 add-task-btn" data-day="Monday">+</button>
+                        </td>
+                        <td class="border border-gray-500 px-4 py-2">
+                            <button class="text-lg text-blue-500 add-task-btn" data-day="Tuesday">+</button>
+                        </td>
+                        <td class="border border-gray-500 px-4 py-2">
+                            <button class="text-lg text-blue-500 add-task-btn" data-day="Wednesday">+</button>
+                        </td>
+                        <td class="border border-gray-500 px-4 py-2">
+                            <button class="text-lg text-blue-500 add-task-btn" data-day="Thursday">+</button>
+                        </td>
+                        <td class="border border-gray-500 px-4 py-2">
+                            <button class="text-lg text-blue-500 add-task-btn" data-day="Friday">+</button>
+                        </td>
+                        <td class="border border-gray-500 px-4 py-2">
+                            <button class="text-lg text-blue-500 add-task-btn" data-day="Saturday">+</button>
+                        </td>
+                        <td class="border border-gray-500 px-4 py-2">
+                            <button class="text-lg text-blue-500 add-task-btn" data-day="Sunday">+</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="success-message"
+        class="hidden fixed top-5 left-1/2 transform -translate-x-1/2 bg-green-600 text-white p-2 rounded transition-opacity duration-300 ease-in-out opacity-0">
+        Task added successfully!
+    </div>
+
+    <script>
+        const addTaskButtons = document.querySelectorAll('.add-task-btn');
+        addTaskButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const selectedDay = this.getAttribute('data-day');
+                document.getElementById('task-date').value = selectedDay;
+                document.getElementById('task-form-modal').classList.remove('hidden');
+            });
+        });
+
+        document.getElementById('cancel-btn').addEventListener('click', function () {
+            document.getElementById('task-form-modal').classList.add('hidden');
+        });
+
+        document.getElementById('task-time').addEventListener('change', function () {
+            document.getElementById('task-title').focus();
+        });
+
+        document.getElementById('new-task-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const time = document.getElementById('task-time').value;
+            const title = document.getElementById('task-title').value;
+            const date = document.getElementById('task-date').value;
+            const description = document.getElementById('task-desc').value;
+
+            if (time && title && date) {
+                // Create a new row for the task
+                const taskTableBody = document.getElementById('task-table-body');
+                const newRow = document.createElement('tr');
+                newRow.classList.add('task-row');
+
+                // Create cells for each day
+                const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+                days.forEach(day => {
+                    const cell = document.createElement('td');
+                    cell.classList.add('border', 'border-gray-500', 'px-4', 'py-2', 'task-cell');
+                    cell.setAttribute('data-day', day);
+
+                    // Add task content only to the matching day
+                    if (day === date) {
+                        cell.innerHTML = `
+                            <div class="font-medium">${title}</div>
+                            <div class="text-sm text-gray-600">${time}</div>
+                            <div class="text-sm text-gray-500">${description}</div>
+                        `;
+                    }
+
+                    newRow.appendChild(cell);
+                });
+
+                // Insert the new row before the button row
+                const buttonRow = taskTableBody.lastElementChild;
+                taskTableBody.insertBefore(newRow, buttonRow);
+
+                // Clear form and close modal
+                document.getElementById('new-task-form').reset();
+                document.getElementById('task-form-modal').classList.add('hidden');
+
+                // Show success message
+                const successMessage = document.getElementById('success-message');
+                successMessage.classList.remove('hidden', 'opacity-0');
+                successMessage.classList.add('opacity-100');
+
+                setTimeout(() => {
+                    successMessage.classList.remove('opacity-100');
+                    successMessage.classList.add('opacity-0');
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+
+</html>
